@@ -53,22 +53,32 @@ Heap.prototype.isEmpty = function(){
  */
 Heap.prototype.pushMax = function(value){
   if(value === null) return null;
-  this.data[this.count] = value;
+  this.data[this.count] = parseInt(value);
   /*max heap*/
 
   let temp = this.count;
   while(temp > 0){
+    /*
+    let parent;
+    if(temp % 2 === 0) parent = temp / 2;
+    else parent = temp / 2 - 0.5;
+    */
     let parent = Math.floor((temp - 1) / 2);
-
+    console.log("parent : " + parent);
+    console.log("parent data : " + this.data[parent]);
+    console.log("temp : " + temp);
+    console.log("temp data : " + this.data[temp]);
     if(this.data[temp] > this.data[parent]){
       swap(this.data, temp, parent);
+      console.log(this.data);
       temp = parent;
     }
     else{
+      console.log("else : "+this.data);
       break;
     }
   }
-  this.count++;   
+  this.count++;
 };
 
 /**
@@ -84,7 +94,7 @@ Heap.prototype.pushMax = function(value){
  */
 Heap.prototype.pushMin = function(value){
   if(value === null) return null;
-  this.data[this.count] = value;
+  this.data[this.count] = parseInt(value);
   /*min heap*/
 
   let temp = this.count;
@@ -114,7 +124,7 @@ Heap.prototype.pushMin = function(value){
  * heap.state(); //  [1,2,3,4]
  */
 Heap.prototype.state = function() {
-  console.log(`=== ${this.size()} items in the heap : [${this.data}] ===`);
+  //console.log(`=== ${this.size()} items in the heap : [${this.data}] ===`);
 };
 
 /**
@@ -131,7 +141,7 @@ Heap.prototype.state = function() {
  */
 Heap.prototype.popMax = function() {
   if(this.isEmpty()) {
-    console.log("Error. Heap is Empty");
+    //console.log("Error. Heap is Empty");
     return null;
   }
   let popedValue = this.data[0];
@@ -171,7 +181,7 @@ Heap.prototype.popMax = function() {
  */
 Heap.prototype.popMin = function() {
   if(this.isEmpty()) {
-    console.log("Error. Heap is Empty");
+    //console.log("Error. Heap is Empty");
     return null;
   }
   let popedValue = this.data[0];
@@ -225,7 +235,7 @@ Heap.prototype.clear = function() {
 Heap.prototype.makeMaxHeap = function(array) {
   /* make normal array to heap */
   if(array.length === 0) {
-    console.log("Input array is now empty");
+    //console.log("Input array is now empty");
     return false;
   }
   for(let i = 1; i < array.length; i++) {
@@ -241,7 +251,7 @@ Heap.prototype.makeMaxHeap = function(array) {
       }
     }
   }
-  console.log(`=== ${array.length} items in the heap : [${array}] ===`);
+  //console.log(`=== ${array.length} items in the heap : [${array}] ===`);
 };
 
 /**
@@ -257,7 +267,7 @@ Heap.prototype.makeMaxHeap = function(array) {
 Heap.prototype.makeMinHeap = function(array) {
   /* make normal array to heap */
   if(array.length === 0) {
-    console.log("Input array is now empty");
+    //console.log("Input array is now empty");
     return false;
   }
   for(let i = 1; i < array.length; i++) {
@@ -273,7 +283,20 @@ Heap.prototype.makeMinHeap = function(array) {
       }
     }
   }
-  console.log(`=== ${array.length} items in the heap : [${array}] ===`);
+  //console.log(`=== ${array.length} items in the heap : [${array}] ===`);
 };
 
-module.exports = Heap;
+Heap.prototype.toString = function () {
+  return `=== ${this.size()} items in the heap : [${this.data}] ===`;
+};
+
+Heap.prototype.getResult = function () {
+  let returnValue = this.data[0];
+  let connectValue = ' - '
+  for (let i = 1; i < this.count; i++) {
+    returnValue =  returnValue + connectValue + this.data[i];
+  }
+  return returnValue;
+};
+
+export default Heap;

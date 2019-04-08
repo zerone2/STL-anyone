@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import stl from 'lib/stl';
 import HeaderTemplate from 'components/header/HeaderTemplate';
 import ToastMessage from 'components/popup/ToastMessage';
@@ -8,15 +8,15 @@ class QueueTemplate extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      index: 0,
       queue: '',
       pushValue: '',
       textAreaValue: [],
       hidden: true,
-      output: '',
+      output: [],
       toastMsg: '',
       hideMsg: true,
-      // layer: ''
+      hideCode: true,
+      showCode: ''
     };
   }
 
@@ -43,30 +43,14 @@ class QueueTemplate extends Component {
     }
   };
 
-  makeOutput = async () => {
-    let output = '';
-    let result = this.state.textAreaValue;
-    // let layer = this.state.layer;
-    result.forEach( (v) => {output += v;});
-    console.log("makeOutput");
-    // layer += <div className={"value-layer" + this.state.index}> {this.state.output} </div>;
-
-    await setTimeout(() => {
-      this.setState({
-        ...this.state,
-        index: this.state.index + 1,
-        hidden: true,
-        output: output,
-        // layer: layer
-      });
-    }, 300);
-    return true;
-  };
-
   makeLayer = () => {
-    let layer = null;
-    layer = <div className={"value-layer"+this.state.index}> {this.state.output} </div>;
-    return layer;
+    let output = [];
+
+    if (!this.state.queue) return null;
+    (this.state.queue.data).map((o, index) => {
+      output.push( <div className={"value-layer" + index} key={index}> { o } </div>);
+    });
+    return output;
   };
 
   setHideValue = value => {
@@ -78,30 +62,16 @@ class QueueTemplate extends Component {
     }
   };
 
-  /*makeLayer2 = () => {
-    let layer = <div><div className={"value-layer0"}> {this.state.output} </div>
-      <div className={"value-layer1"}> {this.state.output} </div></div>;
-    console.log(typeof layer +", " + layer.toString());
-
-    /!*for(let i = 1; i < this.state.index; i++) {
-     layer += <div className={"value-layer" + i}> {this.state.pushValue} </div>;
-    }*!/
-    return layer
-};*/
-
   start = async () => {
     let newQueue = new stl.Queue.ArrQueue();
-    // alert("New Queue Created!");
     await this.setState({
-      index: 0,
       queue: newQueue,
       pushValue: '',
       textAreaValue: [],
       hidden: true,
-      output: '',
+      output: [],
       toastMsg: 'New Queue Created!',
       hideMsg: false
-      //layer: ''
     }, () => {
       console.log(newQueue);
     });
@@ -115,19 +85,31 @@ class QueueTemplate extends Component {
       return false;
     }
 
-    let myQueue = this.state.queue;
-    let result = this.state.textAreaValue;
-    myQueue.push(this.state.pushValue);
-    result.push(this.state.pushValue + ' ');
-    //result.push(this.state.pushValue + ' -> ');
-
     await this.setState({
       ...this.state,
-      queue: myQueue,
-      textAreaValue: result,
-      hidden: !this.state.hidden
+      hidden: !this.state.hidden,
     });
-    //this.forceUpdate()
+
+    let result = this.state.textAreaValue;
+    let output = [];
+    let code = this.state.showCode;
+    let myQueue = this.state.queue;
+
+    result.push(this.state.pushValue);
+    result.forEach( (v) => {output.push(v);});
+    code += myQueue.push(this.state.pushValue) + '\n';
+
+    await setTimeout(async () => {
+      await this.setState({
+        ...this.state,
+        hidden: true,
+        queue: myQueue,
+        output: output,
+        showCode: code,
+        pushValue: ''
+      });
+    }, 2500);
+    return true;
   };
 
   queuePop = async () => {
@@ -135,11 +117,7 @@ class QueueTemplate extends Component {
 
     let myQueue = this.state.queue;
     let result = this.state.textAreaValue;
-    let output='';
-
-    // alert(`pop : ${myQueue.pop()}`);
-    result.splice(0,1);
-    result.forEach( (v) => {output += v;});
+    let output = [...this.state.output.pop()];
 
     await this.setState({
       ...this.state,
@@ -169,7 +147,6 @@ class QueueTemplate extends Component {
   getSize = () => {
     if (this.checkQueue()) return false;
     let myQueue = this.state.queue;
-    // alert(`size : ${myQueue.size()}`);
     this.setState({
       ...this.state,
       toastMsg: `size : ${myQueue.size()}`,
@@ -180,7 +157,6 @@ class QueueTemplate extends Component {
   checkEmpty = () => {
     if (this.checkQueue()) return false;
     let myQueue = this.state.queue;
-    // alert(myQueue.isEmpty());
     this.setState({
       ...this.state,
       toastMsg: `isEmpty ? ${myQueue.isEmpty().toString()}`,
@@ -191,7 +167,6 @@ class QueueTemplate extends Component {
   getFront = () => {
     if (this.checkQueue()) return false;
     let myQueue = this.state.queue;
-    // alert(`front value : ${myQueue.front()}`);
     this.setState({
       ...this.state,
       toastMsg: `front value : ${myQueue.front()}`,
@@ -202,7 +177,6 @@ class QueueTemplate extends Component {
   getBack = () => {
     if (this.checkQueue()) return false;
     let myQueue = this.state.queue;
-    // alert(`back value : ${myQueue.back()}`);
     this.setState({
       ...this.state,
       toastMsg: `back value : ${myQueue.back()}`,
@@ -210,10 +184,22 @@ class QueueTemplate extends Component {
     });
   };
 
+  showCode = () => {
+    if(this.state.hideCode) {
+      this.setState({
+        ...this.state,
+        hideCode: false
+      });
+    } else {
+      this.setState({
+        ...this.state,
+        hideCode: true
+      });
+    }
+  };
+
   render() {
     let value = this.state;
-    /*let output = '';
-    value.textAreaValue.forEach( (v) => {output += v;});*/
 
     return (
       <div className="queue">
@@ -258,13 +244,7 @@ class QueueTemplate extends Component {
           </div>
 
           <div className="result-area">
-            <div className="value-layers" style={{display: value.queue ? 'flex' : 'none'}}>
-              {/*<input
-                className="queue-storage"
-                name="resultArea"
-                value={value.output}
-                readOnly
-              />*/}
+            <div id="queue-storage" className="value-layers" style={{display: value.queue ? 'flex' : 'none'}}>
               {this.makeLayer()}
             </div>
             <div className="queue-value-div">
@@ -274,9 +254,19 @@ class QueueTemplate extends Component {
                 value={value.pushValue}
                 disabled
                 style={{display: this.state.hidden ? 'none' : 'block'}}
-                onAnimationEnd={this.makeOutput}
               />
             </div>
+          </div>
+          <div className="code-area">
+            <button
+              className="code-show-btn"
+              onClick={this.showCode}> open / close </button>
+            <textarea
+              className="code-place"
+              value={value.showCode}
+              hidden={value.hideCode}
+              readOnly
+            />
           </div>
         </div>
       </div>

@@ -212,7 +212,7 @@ HashMap.prototype.keySet = function () {
  * hm.put("A", 1);  
  * hm.put("B", 2); 
  * hm.put("가", 2);
- * Set set = hm.keySet(); // set = {"A-1", "B-2", "가-2"}
+ * Set set = hm.entrySet(); // set = {"A-1", "B-2", "가-2"}
  */
 HashMap.prototype.entrySet = function () {
   let entrySet = new Set();
@@ -220,7 +220,7 @@ HashMap.prototype.entrySet = function () {
     if (this.map[posOfMap] !== undefined) {
       let curEntry = this.map[posOfMap]
       for (let posOfEntry = 0; posOfEntry < this.map[posOfMap].count; posOfEntry++) {
-        entrySet.add(curEntry.key + "=" + curEntry.value);
+        entrySet.add(curEntry.key + "-" + curEntry.value);
         curEntry = curEntry.next;
       }
     }
@@ -324,11 +324,17 @@ HashMap.prototype.size = function () {
   return size;
 };
 
-
-/*
-HashMap.prototype.test = function () {
-  console.log(this.map);
-}
-*/
-
+HashMap.prototype.getResult = function () {
+  let resultValue = "";
+  for (let posOfMap = 0; posOfMap < 6; posOfMap++) {
+    if (this.map[posOfMap] !== undefined) {
+      let curEntry = this.map[posOfMap]
+      for (let posOfEntry = 0; posOfEntry < this.map[posOfMap].count; posOfEntry++) {
+        resultValue = resultValue +  "{" + curEntry.key + " - " + curEntry.value + "}  ";
+        curEntry = curEntry.next;
+      }
+    }
+  }
+  return resultValue;
+};
 export default HashMap;
